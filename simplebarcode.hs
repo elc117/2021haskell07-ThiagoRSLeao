@@ -44,6 +44,21 @@ bar x gapx = ((x*gapx, 0),(x*gapx+gapx, totalHeight))
 flipbar :: Int -> Int -> ((Int,Int),(Int,Int))
 flipbar x gapx = ((x*gapx+gapx,0),(x*gapx, totalHeight))
 
+isBin :: String -> Bool
+isBin str = [a | a <- str, a /= '0' && a /= '1'] == ""
+
+bitPos :: String -> [(Char,Int)]
+bitPos str = zip [c |c <- str] [i |i <- [0..((length str)-1)]]
+
+bitValue :: String -> [Int]
+bitValue str = [int | (char,int) <- (zip [c |c <- str] [i |i <- [((length str)-1),((length str)-2)..0]]), char == '1']
+
+altBarList :: String -> Int -> [((Int,Int),(Int,Int))]
+altBarList str i = [if(c == '1') then flipbar n i else bar n i| (c,n) <- (bitPos str)]
+
+binToDec :: String -> Int
+binToDec bin = foldl1 (\ a b -> a + b) (map (\ i -> 2^i ) (bitValue bin))
+
 -- Gera uma lista de Strings, cada uma representando uma linha SVG, 
 -- com coordenadas calculadas pelas funções acima (bar, flipbar...)
 -- O tamanho da lista é dado pela String de entrada, onde cada caracter representa um bit
@@ -56,10 +71,9 @@ svgBars bits =
   let len = length bits
       gap = div totalWidth len           -- divisao inteira (não preenche bem o espaço)
       --gap = round (fromIntegral totalWidth / fromIntegral len) -- divisao com arredondamento preenche melhor
-      bars = [bar x gap | x <- [0..len]] -- aqui são calculadas todas as coordenadas
+      bars = altBarList bits gap -- aqui são calculadas todas as coordenadas
       cs = map svgColor bits             -- aqui são definidas as cores conforme os bits
    in zipWith svgLine bars cs            -- aqui as coordenadas são combinadas com as cores para produzir linhas
-   
    
 -- Gera strings na saída padrão representando um "código de barras" simples
 -- Cada barra desenhada representa um bit
