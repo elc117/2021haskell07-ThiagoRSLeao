@@ -50,11 +50,11 @@ isBin str = [a | a <- str, a /= '0' && a /= '1'] == ""
 bitPos :: String -> [(Char,Int)]
 bitPos str = zip [c |c <- str] [i |i <- [0..((length str)-1)]]
 
-bitValue :: String -> [Int]
-bitValue str = [int | (char,int) <- (zip [c |c <- str] [i |i <- [((length str)-1),((length str)-2)..0]]), char == '1']
-
 altBarList :: String -> Int -> [((Int,Int),(Int,Int))]
 altBarList str i = [if(c == '1') then flipbar n i else bar n i| (c,n) <- (bitPos str)]
+
+bitValue :: String -> [Int]
+bitValue str = [int | (char,int) <- (zip [c |c <- str] [i |i <- [(len-1),(len-2)..0]]), char == '1'] where len = length str
 
 binToDec :: String -> Int
 binToDec bin = foldl1 (\ a b -> a + b) (map (\ i -> 2^i ) (bitValue bin))
